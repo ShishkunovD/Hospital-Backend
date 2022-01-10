@@ -9,7 +9,7 @@ const router = new Router();
 
 router.post('/registrationsend', 
   [
-    check('login', 'Uncorrect login').isEmpty(),
+    check('login', 'Uncorrect login').notEmpty(),
     check('password', 'Password must be more than 6 characters').isLength({min:6})
   ],
   async (req, res) => {
@@ -54,11 +54,7 @@ router.post('/login', async (req, res) => {
     const token = jwt.sign({userId: user.id}, secret, {expiresIn: "1h"})
     return res.json({
       token,
-      user: {
-        userId: user.id,
-        login: user.login,
-
-      }
+      userId: user.id
     })
   }
   catch (e){

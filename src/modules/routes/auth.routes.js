@@ -1,8 +1,8 @@
 const Router = require("express");
-const User = require('../../db/models/User');
+const User = require('../../db/models/user/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const {secret} = require('../../config/default');
+const { secret } = require('../../config/default');
 const {check, validationResult} = require("express-validator");
 
 const router = new Router();
@@ -14,52 +14,48 @@ router.post('/registrationsend',
   ],
   async (req, res) => {
   try {
-    const errors = validationResult(req)
+    const errors = validationResult(req);
 
-    if(!errors.isEmpty()) {
-      return res.status(400).json({message: 'Uncorrect request', errors})
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ message: 'Uncorrect request', errors });
     }
 
-
     const {login, password} = req.body;
-
     const candidate = await User.findOne({login});
 
-    if(candidate) {
-      return res.status(400).json({message: `User with login ${login} already exist`});
+    if (candidate) {
+      return res.status(400).json({ message: `User with login ${login} already exist` });
     } else {
       const hashPassword = await bcrypt.hash(password, 7);
-      const user = new User({login, password: hashPassword});
+      const user = new User({ login, password: hashPassword });
       await user.save();
       return res.json({message: 'User was created'});
     }
-
   } catch(e) {
-    console.log(e)
+    console.log(e);
   }
 
 })
 
 router.post('/login', async (req, res) => {
   try{
-    const {login, password} = req.body;
-    const user = await User.findOne({login});
-    if(!user) {
-      return res.status(404).json({message: "User not find"});
+    const { login, password } = req.body;
+    const user = await User.findOne({ login });
+    if (!user) {
+      return res.status(404).json({ message: "User not find" });
     }
     const isPassValid = bcrypt.compareSync(password, user.password);
-    if(!isPassValid) {
-      return res.status(400).json({message: "Invalid password"});
+    if (!isPassValid) {
+      return res.status(400).json({ message: "Invalid password" });
     }
-    const token = jwt.sign({userId: user.id}, secret, {expiresIn: "1h"})
+    const token = jwt.sign({ userId: user.id }, secret, { expiresIn: "24h" });
     return res.json({
-      token,
-      userId: user.id
+      token
     })
   }
   catch (e){
     console.log(e);
-    res.send({message: 'Server error'});
+    res.send({ message: 'Server error' });
   }
 })
 

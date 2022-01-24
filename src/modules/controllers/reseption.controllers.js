@@ -42,9 +42,7 @@ module.exports.updateReseption = (req, res) => {
 }
 
 module.exports.deleteReseption = (req, res) => {
-  // console.log(req.query.id);
-  // console.log(req.headers.authorization);
-  // if(req.query.id !== undefined) {
+  if (req.query.id !== undefined) {
     const token = req.headers.authorization.split(' ')[1];
     const decoded = jwt.verify(token, secret);
     const param = req.query.id;
@@ -53,7 +51,7 @@ module.exports.deleteReseption = (req, res) => {
         res.send({ data: result });
       });
     });
-  // } else {
-  //   res.status(404).send("Error, please enter the correctly id");
-  // }
+  } else {
+    res.status(404).send("Error, please enter the correctly id");
+  }
 }
